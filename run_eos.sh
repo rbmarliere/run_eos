@@ -47,12 +47,12 @@ eosc()
 
 eoscheck()
 {
-    if [ "${EOSIO_ROOT}" = "" ] \
-    || [ "${EOSIO_DATA_DIR}" = "" ] \
-    || [ "${EOSIO_CONFIG_DIR}" = "" ] \
-    || [ "${EOSIO_WALLET_DIR}" = "" ] \
-    || [ "${EOSIO_HTTP_HOST}" = "" ] \
-    || [ "${EOSIO_HTTP_PORT}" = "" ] \
+    if [ "${EOSIO_ROOT}"        = "" ] \
+    || [ "${EOSIO_DATA_DIR}"    = "" ] \
+    || [ "${EOSIO_CONFIG_DIR}"  = "" ] \
+    || [ "${EOSIO_WALLET_DIR}"  = "" ] \
+    || [ "${EOSIO_HTTP_HOST}"   = "" ] \
+    || [ "${EOSIO_HTTP_PORT}"   = "" ] \
     || [ "${EOSIO_WALLET_HOST}" = "" ] \
     || [ "${EOSIO_WALLET_PORT}" = "" ] ; then
         die "Environment variables are null, run eosconf."
@@ -61,16 +61,16 @@ eoscheck()
 
 eosconf()
 {
-    [ $# -eq 8 ] || die "Usage: eosconf root data_dir config_dir wallet_dir http_host http_port wallet_host wallet_port"
+    [ $# -eq 8 ] || die "usage: eosconf root data_dir config_dir wallet_dir http_host http_port wallet_host wallet_port"
 
-    export EOSIO_ROOT=${1}
-    export EOSIO_DATA_DIR=${2}
-    export EOSIO_CONFIG_DIR=${3}
-    export EOSIO_WALLET_DIR=${4}
-    export EOSIO_HTTP_HOST=${5}
-    export EOSIO_HTTP_PORT=${6}
-    export EOSIO_WALLET_HOST=${7}
-    export EOSIO_WALLET_PORT=${8}
+    export EOSIO_ROOT=${1}        ; shift
+    export EOSIO_DATA_DIR=${1}    ; shift
+    export EOSIO_CONFIG_DIR=${1}  ; shift
+    export EOSIO_WALLET_DIR=${1}  ; shift
+    export EOSIO_HTTP_HOST=${1}   ; shift
+    export EOSIO_HTTP_PORT=${1}   ; shift
+    export EOSIO_WALLET_HOST=${1} ; shift
+    export EOSIO_WALLET_PORT=${1} ; shift
 }
 
 eoscpp()
@@ -87,6 +87,10 @@ eoscpp()
 
 eosd()
 {
+    mkdir -p ${EOSIO_DATA_DIR}
+    mkdir -p ${EOSIO_CONFIG_DIR}
+    mkdir -p ${EOSIO_WALLET_DIR}
+
     SKIP=0
     while getopts "s" OPTION; do
         case ${OPTION} in
@@ -116,7 +120,7 @@ eosd()
 
 prompt_input_yN()
 {
-    printf "${1}? [y|N] "
+    printf "${1}? [y|N] " ; shift
     while true; do
         read -k 1 yn
         case ${yn} in
