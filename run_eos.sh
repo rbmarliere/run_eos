@@ -116,6 +116,9 @@ eosd()
         --genesis-json="${EOSIO_CONFIG_DIR}/genesis.json" \
         ${REPLAY} \
         2>&1 | tee ${EOSIO_DATA_DIR}/log.$(date +'%Y_%m_%d_%H_%M_%S').txt
+
+    #todo - pid management:
+    #printf "$!" > ${EOSIO_DATA_DIR}/pid
 }
 
 prompt_input_yN()
@@ -128,4 +131,24 @@ prompt_input_yN()
             * ) printf "\n" && return 1;;
         esac
     done
+}
+
+tmux_eos()
+{
+    tmux_eos_nets=${tmux_eos_nets:-""}
+    for net in ${tmux_eos_nets}; do
+        tmux has-session -t ${net} 2>/dev/null
+        if [ $? != 0 ]; then
+            tmux new-session -s ${net} -d
+            tmux send-keys -t ${net} "eosconf_${net} && eos_walletd" C-m
+            tmux split-window -h
+            tmux send-keys -t ${net} "eosconf_${net} && eosd -s" C-m
+            tmux select-pane -L
+            tmux split-window -v
+            tmux send-keys -t ${net} "eosconf_${net}" C-m
+            tmux resize-pane -U 20
+            tmux resize-pane -R 15
+        fi
+    done
+    tmux attach -t ${net}
 }
