@@ -6,6 +6,19 @@ die()
     return 1
 }
 
+prompt_input_yN()
+{
+    printf "${1}? [y|N] " ; shift
+    while true; do
+        read -k 1 yn
+        case ${yn} in
+            [Yy]* ) printf "\n" && return 0; break;;
+            \n ) printf "\n" && return 1; break;;
+            * ) return 1;;
+        esac
+    done
+}
+
 eos_walletd()
 {
     eoscheck
@@ -119,19 +132,6 @@ eosd()
 
     #todo - pid management:
     #printf "$!" > ${EOSIO_DATA_DIR}/pid
-}
-
-prompt_input_yN()
-{
-    printf "${1}? [y|N] " ; shift
-    while true; do
-        read -k 1 yn
-        case ${yn} in
-            [Yy]* ) printf "\n" && return 0; break;;
-            \n ) printf "\n" && return 1; break;;
-            * ) return 1;;
-        esac
-    done
 }
 
 tmux_eos()
