@@ -179,5 +179,5 @@ tmux_eos()
             tmux resize-pane -R 15
         fi
     done
-    tmux attach -t ${net}
+    tmux attach
 }
