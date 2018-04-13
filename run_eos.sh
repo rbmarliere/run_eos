@@ -79,16 +79,27 @@ eoscheck()
 
 eosconf()
 {
-    [ $# -eq 8 ] || die "usage: eosconf root data_dir config_dir wallet_dir http_host http_port wallet_host wallet_port"
+    if [ $# -lt 8 ]; then
+        printf "root: ${EOSIO_ROOT}\n"
+        printf "data_dir: ${EOSIO_DATA_DIR}\n"
+        printf "config_dir: ${EOSIO_CONFIG_DIR}\n"
+        printf "wallet_dir: ${EOSIO_WALLET_DIR}\n"
+        printf "http_host: ${EOSIO_HTTP_HOST}\n"
+        printf "http_port: ${EOSIO_HTTP_PORT}\n"
+        printf "wallet_host: ${EOSIO_WALLET_HOST}\n"
+        printf "wallet_port: ${EOSIO_WALLET_PORT}\n\n"
+        printf "usage: eosconf root data_dir config_dir wallet_dir http_host http_port wallet_host wallet_port\n"
+        return 1
+    fi
 
-    export EOSIO_ROOT=${1}        ; shift
-    export EOSIO_DATA_DIR=${1}    ; shift
-    export EOSIO_CONFIG_DIR=${1}  ; shift
-    export EOSIO_WALLET_DIR=${1}  ; shift
-    export EOSIO_HTTP_HOST=${1}   ; shift
-    export EOSIO_HTTP_PORT=${1}   ; shift
-    export EOSIO_WALLET_HOST=${1} ; shift
-    export EOSIO_WALLET_PORT=${1} ; shift
+    export EOSIO_ROOT=$1        ; shift
+    export EOSIO_DATA_DIR=$1    ; shift
+    export EOSIO_CONFIG_DIR=$1  ; shift
+    export EOSIO_WALLET_DIR=$1  ; shift
+    export EOSIO_HTTP_HOST=$1   ; shift
+    export EOSIO_HTTP_PORT=$1   ; shift
+    export EOSIO_WALLET_HOST=$1 ; shift
+    export EOSIO_WALLET_PORT=$1 ; shift
 }
 
 eoscpp()
