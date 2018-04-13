@@ -121,6 +121,8 @@ eoscpp()
 
 eosd()
 {
+    eoscheck
+
     mkdir -p ${EOSIO_DATA_DIR}
     mkdir -p ${EOSIO_CONFIG_DIR}
     mkdir -p ${EOSIO_WALLET_DIR}
