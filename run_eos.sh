@@ -17,6 +17,7 @@ eos_walletd()
 {
     eoscheck
 
+    wallet=""
     [ -f ${EOSIO_ROOT}/bin/eos-walletd ] \
         && wallet=${EOSIO_ROOT}/bin/eos-walletd
     [ -f ${EOSIO_ROOT}/bin/eosio-walletd ] \
@@ -25,6 +26,10 @@ eos_walletd()
         && wallet=${EOSIO_ROOT}/bin/eosiowd
     [ -f ${EOSIO_ROOT}/bin/keosd ] \
         && wallet=${EOSIO_ROOT}/bin/keosd
+    if [ "${wallet}" = "" ]; then
+        printf "couldn't find binary, check your eosconf\n"
+        return 1
+    fi
 
     ${wallet} \
         --http-server-address=${EOSIO_WALLET_HOST}:${EOSIO_WALLET_PORT} \
@@ -37,12 +42,17 @@ eosc()
 {
     eoscheck
 
+    eosc=""
     [ -f ${EOSIO_ROOT}/bin/eosc ] \
         && eosc=${EOSIO_ROOT}/bin/eosc
     [ -f ${EOSIO_ROOT}/bin/eosioc ] \
         && eosc=${EOSIO_ROOT}/bin/eosioc
     [ -f ${EOSIO_ROOT}/bin/cleos ] \
         && eosc=${EOSIO_ROOT}/bin/cleos
+    if [ "${eosc}" = "" ]; then
+        printf "couldn't find binary, check your eosconf\n"
+        return 1
+    fi
 
     ${eosc} \
         --host ${EOSIO_HTTP_HOST} \
@@ -85,10 +95,15 @@ eoscpp()
 {
     eoscheck
 
+    eoscpp=""
     [ -f ${EOSIO_ROOT}/bin/eoscpp ] \
         && eoscpp=${EOSIO_ROOT}/bin/eoscpp
     [ -f ${EOSIO_ROOT}/bin/eosiocpp ] \
         && eoscpp=${EOSIO_ROOT}/bin/eosiocpp
+    if [ "${eoscpp}" = "" ]; then
+        printf "couldn't find binary, check your eosconf\n"
+        return 1
+    fi
 
     ${eoscpp} $@
 }
@@ -111,12 +126,17 @@ eosd()
         prompt_input_yN "replay" && REPLAY=--replay
     fi
 
+    eosd=""
     [ -f ${EOSIO_ROOT}/bin/eosd ] \
         && eosd=${EOSIO_ROOT}/bin/eosd
     [ -f ${EOSIO_ROOT}/bin/eosiod ] \
         && eosd=${EOSIO_ROOT}/bin/eosiod
     [ -f ${EOSIO_ROOT}/bin/nodeos ] \
         && eosd=${EOSIO_ROOT}/bin/nodeos
+    if [ "${eosd}" = "" ]; then
+        printf "couldn't find binary, check your eosconf\n"
+        return 1
+    fi
 
     ${eosd} \
         --data-dir="${EOSIO_DATA_DIR}" \
