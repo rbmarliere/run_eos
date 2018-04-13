@@ -128,7 +128,7 @@ prompt_input_yN()
         read -k 1 yn
         case ${yn} in
             [Yy]* ) printf "\n" && return 0; break;;
-            * ) printf "\n" && return 1;;
+            * ) return 1;;
         esac
     done
 }
