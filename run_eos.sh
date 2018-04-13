@@ -18,14 +18,18 @@ eos_walletd()
     eoscheck
 
     wallet=""
-    [ -f ${EOSIO_ROOT}/bin/eos-walletd ] \
-        && wallet=${EOSIO_ROOT}/bin/eos-walletd
-    [ -f ${EOSIO_ROOT}/bin/eosio-walletd ] \
-        && wallet=${EOSIO_ROOT}/bin/eosio-walletd
-    [ -f ${EOSIO_ROOT}/bin/eosiowd ] \
-        && wallet=${EOSIO_ROOT}/bin/eosiowd
-    [ -f ${EOSIO_ROOT}/bin/keosd ] \
-        && wallet=${EOSIO_ROOT}/bin/keosd
+    if [ -f ${EOSIO_ROOT}/bin/eos-walletd ]; then
+        wallet=${EOSIO_ROOT}/bin/eos-walletd
+    fi
+    if [ -f ${EOSIO_ROOT}/bin/eosio-walletd ]; then
+        wallet=${EOSIO_ROOT}/bin/eosio-walletd
+    fi
+    if [ -f ${EOSIO_ROOT}/bin/eosiowd ]; then
+        wallet=${EOSIO_ROOT}/bin/eosiowd
+    fi
+    if [ -f ${EOSIO_ROOT}/bin/keosd ]; then
+        wallet=${EOSIO_ROOT}/bin/keosd
+    fi
     if [ "${wallet}" = "" ]; then
         printf "couldn't find binary, check your eosconf\n"
         return 1
@@ -43,12 +47,15 @@ eosc()
     eoscheck
 
     eosc=""
-    [ -f ${EOSIO_ROOT}/bin/eosc ] \
-        && eosc=${EOSIO_ROOT}/bin/eosc
-    [ -f ${EOSIO_ROOT}/bin/eosioc ] \
-        && eosc=${EOSIO_ROOT}/bin/eosioc
-    [ -f ${EOSIO_ROOT}/bin/cleos ] \
-        && eosc=${EOSIO_ROOT}/bin/cleos
+    if [ -f ${EOSIO_ROOT}/bin/eosc ]; then
+        eosc=${EOSIO_ROOT}/bin/eosc
+    fi
+    if [ -f ${EOSIO_ROOT}/bin/eosioc ]; then
+        eosc=${EOSIO_ROOT}/bin/eosioc
+    fi
+    if [ -f ${EOSIO_ROOT}/bin/cleos ]; then
+        eosc=${EOSIO_ROOT}/bin/cleos
+    fi
     if [ "${eosc}" = "" ]; then
         printf "couldn't find binary, check your eosconf\n"
         return 1
@@ -107,10 +114,12 @@ eoscpp()
     eoscheck
 
     eoscpp=""
-    [ -f ${EOSIO_ROOT}/bin/eoscpp ] \
-        && eoscpp=${EOSIO_ROOT}/bin/eoscpp
-    [ -f ${EOSIO_ROOT}/bin/eosiocpp ] \
-        && eoscpp=${EOSIO_ROOT}/bin/eosiocpp
+    if [ -f ${EOSIO_ROOT}/bin/eoscpp ]; then
+        eoscpp=${EOSIO_ROOT}/bin/eoscpp
+    fi
+    if [ -f ${EOSIO_ROOT}/bin/eosiocpp ]; then
+        eoscpp=${EOSIO_ROOT}/bin/eosiocpp
+    fi
     if [ "${eoscpp}" = "" ]; then
         printf "couldn't find binary, check your eosconf\n"
         return 1
@@ -140,12 +149,15 @@ eosd()
     fi
 
     eosd=""
-    [ -f ${EOSIO_ROOT}/bin/eosd ] \
-        && eosd=${EOSIO_ROOT}/bin/eosd
-    [ -f ${EOSIO_ROOT}/bin/eosiod ] \
-        && eosd=${EOSIO_ROOT}/bin/eosiod
-    [ -f ${EOSIO_ROOT}/bin/nodeos ] \
-        && eosd=${EOSIO_ROOT}/bin/nodeos
+    if [ -f ${EOSIO_ROOT}/bin/eosd ]; then
+        eosd=${EOSIO_ROOT}/bin/eosd
+    fi
+    if [ -f ${EOSIO_ROOT}/bin/eosiod ]; then
+        eosd=${EOSIO_ROOT}/bin/eosiod
+    fi
+    if [ -f ${EOSIO_ROOT}/bin/nodeos ]; then
+        eosd=${EOSIO_ROOT}/bin/nodeos
+    fi
     if [ "${eosd}" = "" ]; then
         printf "couldn't find binary, check your eosconf\n"
         return 1
