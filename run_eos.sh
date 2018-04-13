@@ -2,12 +2,12 @@
 
 prompt_input_yN()
 {
-    printf "${1}? [y|N] " ; shift
+    printf "$1? [y|N] " ; shift
     while true; do
         read -k 1 yn
         case ${yn} in
-            [Yy]* ) printf "\n" && return 0; break;;
-            \n ) printf "\n" && return 1; break;;
+            [Yy]* ) printf "\n"; return 0; break;;
+            \n ) printf "\n"; return 1; break;;
             * ) return 1;;
         esac
     done
@@ -99,14 +99,14 @@ eosd()
     mkdir -p ${EOSIO_CONFIG_DIR}
     mkdir -p ${EOSIO_WALLET_DIR}
 
-    SKIP=0
+    skip=0
     while getopts "s" OPTION; do
         case ${OPTION} in
             s)
-                SKIP=1
+                skip=1
         esac
     done
-    if [ "${SKIP}" -eq 0 ]; then
+    if [ "${skip}" -eq 0 ]; then
         prompt_input_yN "clean" && rm -rf ${EOSIO_DATA_DIR}/{block*,shared_mem}
         prompt_input_yN "replay" && REPLAY=--replay
     fi
