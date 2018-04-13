@@ -31,7 +31,7 @@ eos_walletd()
         wallet=${EOSIO_ROOT}/bin/keosd
     fi
     if [ "${wallet}" = "" ]; then
-        printf "couldn't find binary, check your eosconf\n"
+        printf "error: couldn't find binary, check your eosconf\n"
         return 1
     fi
 
@@ -57,7 +57,7 @@ eosc()
         eosc=${EOSIO_ROOT}/bin/cleos
     fi
     if [ "${eosc}" = "" ]; then
-        printf "couldn't find binary, check your eosconf\n"
+        printf "error: couldn't find binary, check your eosconf\n"
         return 1
     fi
 
@@ -79,7 +79,7 @@ eoscheck()
     || [ "${EOSIO_HTTP_PORT}"   = "" ] \
     || [ "${EOSIO_WALLET_HOST}" = "" ] \
     || [ "${EOSIO_WALLET_PORT}" = "" ] ; then
-        printf "environment variables are null, run eosconf\n"
+        printf "error: environment variables are null, run eosconf\n"
         return 1
     fi
 }
@@ -121,7 +121,7 @@ eoscpp()
         eoscpp=${EOSIO_ROOT}/bin/eosiocpp
     fi
     if [ "${eoscpp}" = "" ]; then
-        printf "couldn't find binary, check your eosconf\n"
+        printf "error: couldn't find binary, check your eosconf\n"
         return 1
     fi
 
@@ -159,7 +159,7 @@ eosd()
         eosd=${EOSIO_ROOT}/bin/nodeos
     fi
     if [ "${eosd}" = "" ]; then
-        printf "couldn't find binary, check your eosconf\n"
+        printf "error: couldn't find binary, check your eosconf\n"
         return 1
     fi
 
