@@ -137,7 +137,7 @@ eosd()
 tmux_eos()
 {
     tmux_eos_nets=${tmux_eos_nets:-""}
-    for net in ${tmux_eos_nets}; do
+    printf "${tmux_eos_nets}\n" | tr ' ' '\n' | while read net; do
         tmux has-session -t ${net} 2>/dev/null
         if [ $? != 0 ]; then
             tmux new-session -s ${net} -d
