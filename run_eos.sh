@@ -1,11 +1,5 @@
 #!/bin/sh
 
-die()
-{
-    [ $# -gt 0 ] && printf -- "%s\n" "$*"
-    return 1
-}
-
 prompt_input_yN()
 {
     printf "${1}? [y|N] " ; shift
@@ -68,7 +62,8 @@ eoscheck()
     || [ "${EOSIO_HTTP_PORT}"   = "" ] \
     || [ "${EOSIO_WALLET_HOST}" = "" ] \
     || [ "${EOSIO_WALLET_PORT}" = "" ] ; then
-        die "Environment variables are null, run eosconf."
+        printf "environment variables are null, run eosconf\n"
+        return 1
     fi
 }
 
