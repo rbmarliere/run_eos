@@ -126,10 +126,10 @@ eosd()
     mkdir -p ${EOSIO_WALLET_DIR}
 
     skip=0
-    while getopts "s" OPTION; do
+    while getopts "sk" OPTION; do
         case ${OPTION} in
-            s)
-                skip=1
+            s ) skip=1; break;;
+            k ) eosd_kill;;
         esac
     done
     if [ "${skip}" -eq 0 ]; then
@@ -152,15 +152,23 @@ eosd()
         return 1
     fi
 
+    DATE=$(date +'%Y_%m_%d_%H_%M_%S')
     ${eosd} \
         --data-dir="${EOSIO_DATA_DIR}" \
         --config="${EOSIO_CONFIG_DIR}/config.ini" \
         --genesis-json="${EOSIO_CONFIG_DIR}/genesis.json" \
         ${REPLAY} \
-        2>&1 | tee ${EOSIO_DATA_DIR}/log.$(date +'%Y_%m_%d_%H_%M_%S').txt
+        &>${EOSIO_DATA_DIR}/${DATE}.log &
+    printf "$!" > ${EOSIO_DATA_DIR}/pid
+    tail -f ${EOSIO_DATA_DIR}/${DATE}.log
+}
 
-    #todo - pid management:
-    #printf "$!" > ${EOSIO_DATA_DIR}/pid
+eosd_kill()
+{
+    PID=${EOSIO_DATA_DIR}/pid
+    if [ -f ${PID} ]; then
+        kill -0 ${PID} && kill -2 ${PID}
+    fi
 }
 
 tmux_eos()
