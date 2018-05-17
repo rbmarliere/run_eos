@@ -90,13 +90,19 @@ nodeos()
     mkdir -p ${EOSIO_CONFIG_DIR}
     mkdir -p ${EOSIO_WALLET_DIR}
 
+    PID=$(cat ${EOSIO_DATA_DIR}/pid)
     skip=0
     while getopts "sk" OPTION; do
         case ${OPTION} in
             s ) skip=1; break;;
-            k ) nodeos_kill;;
+            k ) nodeos_kill ${PID}; return 1;;
         esac
     done
+    if [ -d "/proc/${PID}" ]; then
+        ps ef ${PID}
+        printf '\n'
+        prompt_input_yN "nodeos seems to be running, kill it?" && nodeos_kill ${PID} || return 1
+    fi
     if [ "${skip}" -eq 0 ]; then
         prompt_input_yN "clean" && rm -rf ${EOSIO_DATA_DIR}/{block*,shared_mem}
         prompt_input_yN "replay" && REPLAY=--replay
@@ -104,23 +110,23 @@ nodeos()
 
     DATE=$(date +'%Y_%m_%d_%H_%M_%S')
 
-    ${eosd} \
+    ${nodeos} \
         --data-dir="${EOSIO_DATA_DIR}" \
         --config="${EOSIO_CONFIG_DIR}/config.ini" \
         --genesis-json="${EOSIO_CONFIG_DIR}/genesis.json" \
         ${REPLAY} \
         &>${EOSIO_DATA_DIR}/${DATE}.log &
 
+    rm -f ${EOSIO_DATA_DIR}/pid
     printf "$!" > ${EOSIO_DATA_DIR}/pid
+    chmod -w ${EOSIO_DATA_DIR}/pid
     tail -f ${EOSIO_DATA_DIR}/${DATE}.log
 }
 
 nodeos_kill()
 {
-    PID=${EOSIO_DATA_DIR}/pid
-    if [ -f ${PID} ]; then
-        kill -0 ${PID} && kill -2 ${PID}
-    fi
+    PID=${1} ; shift
+    kill -0 ${PID} && kill -2 ${PID}
 }
 
 tmux_eos()
