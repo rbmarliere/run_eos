@@ -12,14 +12,14 @@ eoscheck()
     || [ "${EOSIO_HTTP_PORT}"   = "" ] \
     || [ "${EOSIO_WALLET_HOST}" = "" ] \
     || [ "${EOSIO_WALLET_PORT}" = "" ] ; then
-        printf "error: an environment variable is null, run eosconf\n"
+        printf "error: an environment variable is null, run eosconf first\n"
         return 1
     fi
     if [ ! -f ${keosd} ] \
     || [ ! -f ${cleos} ] \
     || [ ! -f ${eoscpp} ] \
     || [ ! -f ${nodeos} ]; then
-        printf "error: a binary was not found, run eosconf\n"
+        printf "error: a binary was not found in ${EOSIO_ROOT}\n"
         return 1
     fi
 }
