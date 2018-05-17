@@ -76,11 +76,9 @@ cleos()
 {
     eoscheck
 
-    ${eosc} \
-        --host ${EOSIO_HTTP_HOST} \
-        --port ${EOSIO_HTTP_PORT} \
-        --wallet-host ${EOSIO_WALLET_HOST} \
-        --wallet-port ${EOSIO_WALLET_PORT} \
+    ${cleos} \
+        --url http://${EOSIO_HTTP_HOST}:${EOSIO_HTTP_PORT} \
+        --wallet-url http://${EOSIO_WALLET_HOST}${EOSIO_HTTP_PORT} \
         $@
 }
 
@@ -132,9 +130,9 @@ tmux_eos()
         tmux has-session -t ${net} 2>/dev/null
         if [ $? != 0 ]; then
             tmux new-session -s ${net} -d
-            tmux send-keys -t ${net} "eosconf_${net} && eos_walletd" C-m
+            tmux send-keys -t ${net} "eosconf_${net} && keosd" C-m
             tmux split-window -h
-            tmux send-keys -t ${net} "eosconf_${net} && eosd -s" C-m
+            tmux send-keys -t ${net} "eosconf_${net} && nodeos" C-m
             tmux select-pane -L
             tmux split-window -v
             tmux send-keys -t ${net} "eosconf_${net}" C-m
