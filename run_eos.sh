@@ -101,7 +101,12 @@ nodeos()
     if [ -d "/proc/${PID}" ]; then
         ps ef ${PID}
         printf '\n'
-        prompt_input_yN "nodeos seems to be running, kill it?" && nodeos_kill ${PID} || return 1
+        if prompt_input_yN "nodeos seems to be running, kill it?"; then
+            nodeos_kill ${PID}
+        else
+            tail -f ${EOSIO_DATA_DIR}/lastlog
+            return 1
+        fi
     fi
     if [ "${skip}" -eq 0 ]; then
         prompt_input_yN "clean" && rm -rf ${EOSIO_DATA_DIR}/{block*,shared_mem}
@@ -117,10 +122,12 @@ nodeos()
         ${REPLAY} \
         &>${EOSIO_DATA_DIR}/${DATE}.log &
 
+    unlink ${EOSIO_DATA_DIR}/lastlog
+    ln -s ${EOSIO_DATA_DIR}/${DATE}.log ${EOSIO_DATA_DIR}/lastlog
     rm -f ${EOSIO_DATA_DIR}/pid
     printf "$!" > ${EOSIO_DATA_DIR}/pid
     chmod -w ${EOSIO_DATA_DIR}/pid
-    tail -f ${EOSIO_DATA_DIR}/${DATE}.log
+    tail -f ${EOSIO_DATA_DIR}/lastlog
 }
 
 nodeos_kill()
