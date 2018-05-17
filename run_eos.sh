@@ -78,7 +78,7 @@ cleos()
 
     ${cleos} \
         --url http://${EOSIO_HTTP_HOST}:${EOSIO_HTTP_PORT} \
-        --wallet-url http://${EOSIO_WALLET_HOST}${EOSIO_HTTP_PORT} \
+        --wallet-url http://${EOSIO_WALLET_HOST}:${EOSIO_HTTP_PORT} \
         $@
 }
 
