@@ -2,51 +2,40 @@
 
 source $(dirname "$0")/prompt_input_yN/prompt_input_yN.sh
 
-eoscheck()
+eosiocheck()
 {
-    if [ "${EOSIO_ROOT}"        = "" ] \
-    || [ "${EOSIO_DATA_DIR}"    = "" ] \
-    || [ "${EOSIO_CONFIG_DIR}"  = "" ] \
-    || [ "${EOSIO_WALLET_DIR}"  = "" ] \
-    || [ "${EOSIO_HTTP_HOST}"   = "" ] \
-    || [ "${EOSIO_HTTP_PORT}"   = "" ] \
-    || [ "${EOSIO_WALLET_HOST}" = "" ] \
-    || [ "${EOSIO_WALLET_PORT}" = "" ] ; then
-        printf "error: an environment variable is null, run eosconf first\n"
+    if [ "${EOSIO_ROOT}"  = "" ] \
+    || [ "${EOSIO_CROOT}" = "" ] \
+    || [ "${EOSIO_URL}"   = "" ] \
+    || [ "${EOSIO_WURL}"  = "" ]; then
+        printf "error: an environment variable is null, check your eosconf\n"
         return 1
     fi
-    if [ ! -f ${keosd} ] \
-    || [ ! -f ${cleos} ] \
-    || [ ! -f ${eoscpp} ] \
-    || [ ! -f ${nodeos} ]; then
-        printf "error: a binary was not found in ${EOSIO_ROOT}\n"
+    if [ ! -f "${keosd}" ] \
+    || [ ! -f "${cleos}" ] \
+    || [ ! -f "${eoscpp}" ] \
+    || [ ! -f "${nodeos}" ]; then
+        printf "error: a binary was not found in ${EOSIO_ROOT}, check your eosconf\n"
         return 1
     fi
 }
 
-eosconf()
+eosioconf()
 {
-    if [ $# -lt 8 ]; then
-        printf "root: ${EOSIO_ROOT}\n"
-        printf "data_dir: ${EOSIO_DATA_DIR}\n"
-        printf "config_dir: ${EOSIO_CONFIG_DIR}\n"
-        printf "wallet_dir: ${EOSIO_WALLET_DIR}\n"
-        printf "http_host: ${EOSIO_HTTP_HOST}\n"
-        printf "http_port: ${EOSIO_HTTP_PORT}\n"
-        printf "wallet_host: ${EOSIO_WALLET_HOST}\n"
-        printf "wallet_port: ${EOSIO_WALLET_PORT}\n\n"
-        printf "usage: eosconf root data_dir config_dir wallet_dir http_host http_port wallet_host wallet_port\n"
+    if [ $# -lt 4 ]; then
+        printf "usage: eosconf eosio_root chain_root url wallet_url\n"
+        printf "e.g. eosconf /usr/local ~/eos_localnet 127.0.0.1:8888 127.0.0.1:9999\n\n"
+        printf "eosio_root: ${EOSIO_ROOT}\n"
+        printf "chain_root: ${EOSIO_CROOT}\n"
+        printf "url: ${EOSIO_URL}\n"
+        printf "wallet_url: ${EOSIO_WURL}\n"
         return 1
     fi
 
-    export EOSIO_ROOT=$1        ; shift
-    export EOSIO_DATA_DIR=$1    ; shift
-    export EOSIO_CONFIG_DIR=$1  ; shift
-    export EOSIO_WALLET_DIR=$1  ; shift
-    export EOSIO_HTTP_HOST=$1   ; shift
-    export EOSIO_HTTP_PORT=$1   ; shift
-    export EOSIO_WALLET_HOST=$1 ; shift
-    export EOSIO_WALLET_PORT=$1 ; shift
+    export EOSIO_ROOT=$1  ; shift
+    export EOSIO_CROOT=$1 ; shift
+    export EOSIO_URL=$1   ; shift
+    export EOSIO_WURL=$1  ; shift
 
     export keosd=${EOSIO_ROOT}/bin/keosd
     export cleos=${EOSIO_ROOT}/bin/cleos
@@ -56,84 +45,71 @@ eosconf()
 
 eosiocpp()
 {
-    eoscheck
-
+    eosiocheck
     ${eoscpp} $@
 }
 
 keosd()
 {
-    eoscheck
-
-    ${keosd} \
-        --http-server-address=${EOSIO_WALLET_HOST}:${EOSIO_WALLET_PORT} \
-        --wallet-dir=${EOSIO_WALLET_DIR} \
-        --data-dir=${EOSIO_DATA_DIR} \
-        $@
+    eosiocheck
+    ${keosd} --http-server-address=${EOSIO_WURL} $@
 }
 
 cleos()
 {
-    eoscheck
-
+    eosiocheck
     ${cleos} \
-        --url http://${EOSIO_HTTP_HOST}:${EOSIO_HTTP_PORT} \
-        --wallet-url http://${EOSIO_WALLET_HOST}:${EOSIO_HTTP_PORT} \
+        --url http://${EOSIO_URL} \
+        --wallet-url http://${EOSIO_WURL} \
         $@
 }
 
 nodeos()
 {
-    eoscheck
+    eosiocheck
 
-    mkdir -p ${EOSIO_DATA_DIR}
-    mkdir -p ${EOSIO_CONFIG_DIR}
-    mkdir -p ${EOSIO_WALLET_DIR}
+    mkdir -p ${EOSIO_CROOT}/{config,data,log}
 
-    PID=$(cat ${EOSIO_DATA_DIR}/pid)
-    skip=0
-    while getopts "sk" OPTION; do
-        case ${OPTION} in
-            s ) skip=1; break;;
-            k ) nodeos_kill ${PID}; return 1;;
-        esac
-    done
-    if [ -d "/proc/${PID}" ]; then
-        ps ef ${PID}
-        printf '\n'
-        if prompt_input_yN "nodeos seems to be running, kill it?"; then
-            nodeos_kill ${PID}
-        else
-            tail -f ${EOSIO_DATA_DIR}/lastlog
-            return 1
+    if [ -f "${EOSIO_CROOT}/data/pid" ]; then
+        PID=$(cat ${EOSIO_CROOT}/data/pid)
+        if [ -d "/proc/${PID}" ]; then
+            ps ef ${PID}
+            printf '\n'
+            if prompt_input_yN "nodeos seems to be running, kill it?"; then
+                nodeos_kill ${PID}
+            else
+                tail -f ${EOSIO_CROOT}/log/lastlog
+                return 1
+            fi
         fi
     fi
-    if [ "${skip}" -eq 0 ]; then
-        prompt_input_yN "clean" && rm -rf ${EOSIO_DATA_DIR}/{block*,shared_mem}
-        prompt_input_yN "replay" && REPLAY=--replay
-    fi
+
+    prompt_input_yN "clean" && rm -rf ${EOSIO_CROOT}/data/{block*,shared_mem}
+    prompt_input_yN "replay" && REPLAY=--replay
 
     DATE=$(date +'%Y_%m_%d_%H_%M_%S')
 
     ${nodeos} \
-        --data-dir="${EOSIO_DATA_DIR}" \
-        --config="${EOSIO_CONFIG_DIR}/config.ini" \
-        --genesis-json="${EOSIO_CONFIG_DIR}/genesis.json" \
+        --data-dir="${EOSIO_CROOT}/data" \
+        --config="${EOSIO_CROOT}/config/config.ini" \
+        --genesis-json="${EOSIO_CROOT}/config/genesis.json" \
         ${REPLAY} \
-        &>${EOSIO_DATA_DIR}/${DATE}.log &
+        &>${EOSIO_CROOT}/log/${DATE}.log &
 
-    unlink ${EOSIO_DATA_DIR}/lastlog
-    ln -s ${EOSIO_DATA_DIR}/${DATE}.log ${EOSIO_DATA_DIR}/lastlog
-    rm -f ${EOSIO_DATA_DIR}/pid
-    printf "$!" > ${EOSIO_DATA_DIR}/pid
-    chmod -w ${EOSIO_DATA_DIR}/pid
-    tail -f ${EOSIO_DATA_DIR}/lastlog
+    [ -L ${EOSIO_CROOT}/log/lastlog ] && unlink ${EOSIO_CROOT}/log/lastlog
+    ln -s ${EOSIO_CROOT}/log/${DATE}.log ${EOSIO_CROOT}/log/lastlog
+
+    rm -f ${EOSIO_CROOT}/data/pid
+    printf "$!" > ${EOSIO_CROOT}/data/pid
+    chmod -w ${EOSIO_CROOT}/data/pid
+
+    tail -f ${EOSIO_CROOT}/log/lastlog
 }
 
 nodeos_kill()
 {
     PID=${1} ; shift
-    kill -0 ${PID} && kill -2 ${PID}
+    kill -0 ${PID} && kill -2 ${PID} && rm -f ${EOSIO_CROOT}/data/pid
 }
 
 tmux_eos()
@@ -143,12 +119,12 @@ tmux_eos()
         tmux has-session -t ${net} 2>/dev/null
         if [ $? != 0 ]; then
             tmux new-session -s ${net} -d
-            tmux send-keys -t ${net} "eosconf_${net} && keosd" C-m
+            tmux send-keys -t ${net} "eosioconf_${net} && keosd" C-m
             tmux split-window -h
-            tmux send-keys -t ${net} "eosconf_${net} && nodeos" C-m
+            tmux send-keys -t ${net} "eosioconf_${net} && nodeos" C-m
             tmux select-pane -L
             tmux split-window -v
-            tmux send-keys -t ${net} "eosconf_${net}" C-m
+            tmux send-keys -t ${net} "eosioconf_${net}" C-m
             tmux resize-pane -U 20
             tmux resize-pane -R 15
         fi
