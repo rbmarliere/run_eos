@@ -2,62 +2,6 @@
 
 source $(dirname "$0")/prompt_input_yN/prompt_input_yN.sh
 
-eos_walletd()
-{
-    eoscheck
-
-    wallet=""
-    if [ -f ${EOSIO_ROOT}/bin/eos-walletd ]; then
-        wallet=${EOSIO_ROOT}/bin/eos-walletd
-    fi
-    if [ -f ${EOSIO_ROOT}/bin/eosio-walletd ]; then
-        wallet=${EOSIO_ROOT}/bin/eosio-walletd
-    fi
-    if [ -f ${EOSIO_ROOT}/bin/eosiowd ]; then
-        wallet=${EOSIO_ROOT}/bin/eosiowd
-    fi
-    if [ -f ${EOSIO_ROOT}/bin/keosd ]; then
-        wallet=${EOSIO_ROOT}/bin/keosd
-    fi
-    if [ "${wallet}" = "" ]; then
-        printf "error: couldn't find binary, check your eosconf\n"
-        return 1
-    fi
-
-    ${wallet} \
-        --http-server-address=${EOSIO_WALLET_HOST}:${EOSIO_WALLET_PORT} \
-        --wallet-dir=${EOSIO_WALLET_DIR} \
-        --data-dir=${EOSIO_DATA_DIR} \
-        $@
-}
-
-eosc()
-{
-    eoscheck
-
-    eosc=""
-    if [ -f ${EOSIO_ROOT}/bin/eosc ]; then
-        eosc=${EOSIO_ROOT}/bin/eosc
-    fi
-    if [ -f ${EOSIO_ROOT}/bin/eosioc ]; then
-        eosc=${EOSIO_ROOT}/bin/eosioc
-    fi
-    if [ -f ${EOSIO_ROOT}/bin/cleos ]; then
-        eosc=${EOSIO_ROOT}/bin/cleos
-    fi
-    if [ "${eosc}" = "" ]; then
-        printf "error: couldn't find binary, check your eosconf\n"
-        return 1
-    fi
-
-    ${eosc} \
-        --host ${EOSIO_HTTP_HOST} \
-        --port ${EOSIO_HTTP_PORT} \
-        --wallet-host ${EOSIO_WALLET_HOST} \
-        --wallet-port ${EOSIO_WALLET_PORT} \
-        $@
-}
-
 eoscheck()
 {
     if [ "${EOSIO_ROOT}"        = "" ] \
@@ -68,7 +12,14 @@ eoscheck()
     || [ "${EOSIO_HTTP_PORT}"   = "" ] \
     || [ "${EOSIO_WALLET_HOST}" = "" ] \
     || [ "${EOSIO_WALLET_PORT}" = "" ] ; then
-        printf "error: environment variables are null, run eosconf\n"
+        printf "error: an environment variable is null, run eosconf\n"
+        return 1
+    fi
+    if [ ! -f ${keosd} ] \
+    || [ ! -f ${cleos} ] \
+    || [ ! -f ${eoscpp} ] \
+    || [ ! -f ${nodeos} ]; then
+        printf "error: a binary was not found, run eosconf\n"
         return 1
     fi
 }
@@ -96,28 +47,44 @@ eosconf()
     export EOSIO_HTTP_PORT=$1   ; shift
     export EOSIO_WALLET_HOST=$1 ; shift
     export EOSIO_WALLET_PORT=$1 ; shift
+
+    export keosd=${EOSIO_ROOT}/bin/keosd
+    export cleos=${EOSIO_ROOT}/bin/cleos
+    export eoscpp=${EOSIO_ROOT}/bin/eosiocpp
+    export nodeos=${EOSIO_ROOT}/bin/nodeos
 }
 
-eoscpp()
+eosiocpp()
 {
     eoscheck
-
-    eoscpp=""
-    if [ -f ${EOSIO_ROOT}/bin/eoscpp ]; then
-        eoscpp=${EOSIO_ROOT}/bin/eoscpp
-    fi
-    if [ -f ${EOSIO_ROOT}/bin/eosiocpp ]; then
-        eoscpp=${EOSIO_ROOT}/bin/eosiocpp
-    fi
-    if [ "${eoscpp}" = "" ]; then
-        printf "error: couldn't find binary, check your eosconf\n"
-        return 1
-    fi
 
     ${eoscpp} $@
 }
 
-eosd()
+keosd()
+{
+    eoscheck
+
+    ${keosd} \
+        --http-server-address=${EOSIO_WALLET_HOST}:${EOSIO_WALLET_PORT} \
+        --wallet-dir=${EOSIO_WALLET_DIR} \
+        --data-dir=${EOSIO_DATA_DIR} \
+        $@
+}
+
+cleos()
+{
+    eoscheck
+
+    ${eosc} \
+        --host ${EOSIO_HTTP_HOST} \
+        --port ${EOSIO_HTTP_PORT} \
+        --wallet-host ${EOSIO_WALLET_HOST} \
+        --wallet-port ${EOSIO_WALLET_PORT} \
+        $@
+}
+
+nodeos()
 {
     eoscheck
 
@@ -129,7 +96,7 @@ eosd()
     while getopts "sk" OPTION; do
         case ${OPTION} in
             s ) skip=1; break;;
-            k ) eosd_kill;;
+            k ) nodeos_kill;;
         esac
     done
     if [ "${skip}" -eq 0 ]; then
@@ -137,33 +104,20 @@ eosd()
         prompt_input_yN "replay" && REPLAY=--replay
     fi
 
-    eosd=""
-    if [ -f ${EOSIO_ROOT}/bin/eosd ]; then
-        eosd=${EOSIO_ROOT}/bin/eosd
-    fi
-    if [ -f ${EOSIO_ROOT}/bin/eosiod ]; then
-        eosd=${EOSIO_ROOT}/bin/eosiod
-    fi
-    if [ -f ${EOSIO_ROOT}/bin/nodeos ]; then
-        eosd=${EOSIO_ROOT}/bin/nodeos
-    fi
-    if [ "${eosd}" = "" ]; then
-        printf "error: couldn't find binary, check your eosconf\n"
-        return 1
-    fi
-
     DATE=$(date +'%Y_%m_%d_%H_%M_%S')
+
     ${eosd} \
         --data-dir="${EOSIO_DATA_DIR}" \
         --config="${EOSIO_CONFIG_DIR}/config.ini" \
         --genesis-json="${EOSIO_CONFIG_DIR}/genesis.json" \
         ${REPLAY} \
         &>${EOSIO_DATA_DIR}/${DATE}.log &
+
     printf "$!" > ${EOSIO_DATA_DIR}/pid
     tail -f ${EOSIO_DATA_DIR}/${DATE}.log
 }
 
-eosd_kill()
+nodeos_kill()
 {
     PID=${EOSIO_DATA_DIR}/pid
     if [ -f ${PID} ]; then
@@ -190,3 +144,4 @@ tmux_eos()
     done
     tmux attach
 }
+
