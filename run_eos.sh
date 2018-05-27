@@ -85,7 +85,7 @@ nodeos()
     fi
 
     prompt_input_yN "clean" && rm -rf ${EOSIO_CROOT}/data/{block*,shared_mem}
-    prompt_input_yN "replay" && REPLAY=--replay
+    prompt_input_yN "replay" && REPLAY=--replay || REPLAY=
 
     DATE=$(date +'%Y_%m_%d_%H_%M_%S')
 
