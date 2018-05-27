@@ -89,12 +89,15 @@ nodeos()
 
     DATE=$(date +'%Y_%m_%d_%H_%M_%S')
 
-    ${nodeos} \
+    nohup ${nodeos} \
         --data-dir="${EOSIO_CROOT}/data" \
         --config="${EOSIO_CROOT}/config/config.ini" \
         --genesis-json="${EOSIO_CROOT}/config/genesis.json" \
         ${REPLAY} \
-        &>${EOSIO_CROOT}/log/${DATE}.log &
+        < /dev/null \
+        > ${EOSIO_CROOT}/log/${DATE}.log \
+        2>&1 \
+        &
 
     [ -L ${EOSIO_CROOT}/log/lastlog ] && unlink ${EOSIO_CROOT}/log/lastlog
     ln -s ${EOSIO_CROOT}/log/${DATE}.log ${EOSIO_CROOT}/log/lastlog
