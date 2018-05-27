@@ -45,19 +45,19 @@ eosioconf()
 
 eosiocpp()
 {
-    eosiocheck
+    eosiocheck || return 1
     ${eoscpp} $@
 }
 
 keosd()
 {
-    eosiocheck
+    eosiocheck || return 1
     ${keosd} --http-server-address=${EOSIO_WURL} $@
 }
 
 cleos()
 {
-    eosiocheck
+    eosiocheck || return 1
     ${cleos} \
         --url http://${EOSIO_URL} \
         --wallet-url http://${EOSIO_WURL} \
@@ -66,7 +66,7 @@ cleos()
 
 nodeos()
 {
-    eosiocheck
+    eosiocheck || return 1
 
     mkdir -p ${EOSIO_CROOT}/{config,data,log}
 
