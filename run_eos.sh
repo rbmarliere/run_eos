@@ -8,14 +8,14 @@ eosiocheck()
     || [ "${EOSIO_CROOT}" = "" ] \
     || [ "${EOSIO_URL}"   = "" ] \
     || [ "${EOSIO_WURL}"  = "" ]; then
-        printf "error: an environment variable is null, check your eosconf\n"
+        printf "error: an environment variable is null, check your eosioconf\n"
         return 1
     fi
     if [ ! -f "${keosd}" ] \
     || [ ! -f "${cleos}" ] \
     || [ ! -f "${eoscpp}" ] \
     || [ ! -f "${nodeos}" ]; then
-        printf "error: a binary was not found in ${EOSIO_ROOT}, check your eosconf\n"
+        printf "error: a binary was not found in ${EOSIO_ROOT}, check your eosioconf\n"
         return 1
     fi
 }
@@ -23,8 +23,8 @@ eosiocheck()
 eosioconf()
 {
     if [ $# -lt 4 ]; then
-        printf "usage: eosconf eosio_root chain_root url wallet_url\n"
-        printf "e.g. eosconf /usr/local ~/eos_localnet 127.0.0.1:8888 127.0.0.1:9999\n\n"
+        printf "usage: eosioconf eosio_root chain_root url wallet_url\n"
+        printf "e.g. eosioconf /usr/local ~/eos_localnet 127.0.0.1:8888 127.0.0.1:9999\n\n"
         printf "eosio_root: ${EOSIO_ROOT}\n"
         printf "chain_root: ${EOSIO_CROOT}\n"
         printf "url: ${EOSIO_URL}\n"
@@ -84,7 +84,7 @@ nodeos()
         fi
     fi
 
-    prompt_input_yN "clean" && rm -rf ${EOSIO_CROOT}/data/{block*,shared_mem}
+    prompt_input_yN "clean" && rm -rf ${EOSIO_CROOT}/data/{block*,shared_mem,state}
     prompt_input_yN "replay" && REPLAY=--replay || REPLAY=
 
     DATE=$(date +'%Y_%m_%d_%H_%M_%S')
@@ -113,6 +113,7 @@ nodeos_kill()
 {
     PID=${1} ; shift
     kill -0 ${PID} && kill -2 ${PID} && rm -f ${EOSIO_CROOT}/data/pid
+    wait ${PID}
 }
 
 tmux_eos()
