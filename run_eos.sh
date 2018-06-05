@@ -86,13 +86,14 @@ nodeos()
 
     prompt_input_yN "clean" && rm -rf ${EOSIO_CROOT}/data/{block*,shared_mem,state}
     prompt_input_yN "replay" && REPLAY=--replay || REPLAY=
+    [ -d ${EOSIO_CROOT}/data/blocks ] && GENESIS= || GENESIS=--genesis-json="${EOSIO_CROOT}/config/genesis.json"
 
     DATE=$(date +'%Y_%m_%d_%H_%M_%S')
 
     nohup ${nodeos} \
         --data-dir="${EOSIO_CROOT}/data" \
         --config="${EOSIO_CROOT}/config/config.ini" \
-        --genesis-json="${EOSIO_CROOT}/config/genesis.json" \
+        ${GENESIS} \
         ${REPLAY} \
         < /dev/null \
         > ${EOSIO_CROOT}/log/${DATE}.log \
