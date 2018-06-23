@@ -96,8 +96,8 @@ nodeos()
         ${GENESIS} \
         ${REPLAY} \
         < /dev/null \
-        > ${EOSIO_CROOT}/log/${DATE}.log \
         2>&1 \
+        > ${EOSIO_CROOT}/log/${DATE}.log \
         &
 
     [ -L ${EOSIO_CROOT}/log/lastlog ] && unlink ${EOSIO_CROOT}/log/lastlog
