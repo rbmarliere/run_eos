@@ -59,8 +59,8 @@ cleos()
 {
     eosiocheck || return 1
     ${cleos} \
-        --url http://${EOSIO_URL} \
-        --wallet-url http://${EOSIO_WURL} \
+        --url ${EOSIO_URL} \
+        --wallet-url ${EOSIO_WURL} \
         $@
 }
 
