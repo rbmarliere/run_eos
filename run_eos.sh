@@ -24,7 +24,7 @@ eosioconf()
 {
     if [ $# -lt 4 ]; then
         printf "usage: eosioconf eosio_root chain_root url wallet_url\n"
-        printf "e.g. eosioconf /usr/local ~/eos_localnet 127.0.0.1:8888 127.0.0.1:9999\n\n"
+        printf "e.g. eosioconf /usr/local ~/eos_localnet http://127.0.0.1:8888 http://127.0.0.1:9999\n\n"
         printf "eosio_root: ${EOSIO_ROOT}\n"
         printf "chain_root: ${EOSIO_CROOT}\n"
         printf "url: ${EOSIO_URL}\n"
