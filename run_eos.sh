@@ -13,7 +13,7 @@ eosiocheck()
     fi
     if [ ! -f "${keosd}" ] \
     || [ ! -f "${cleos}" ] \
-    || [ ! -f "${eoscpp}" ] \
+    || [ ! -f "${eosiocpp}" ] \
     || [ ! -f "${nodeos}" ]; then
         printf "error: a binary was not found in ${EOSIO_ROOT}, check your eosioconf\n"
         return 1
@@ -37,16 +37,16 @@ eosioconf()
     export EOSIO_URL=$1   ; shift
     export EOSIO_WURL=$1  ; shift
 
-    export keosd=${EOSIO_ROOT}/bin/keosd
-    export cleos=${EOSIO_ROOT}/bin/cleos
-    export eoscpp=${EOSIO_ROOT}/bin/eosiocpp
-    export nodeos=${EOSIO_ROOT}/bin/nodeos
+    export keosd=$(find ${EOSIO_ROOT} -type f -iname keosd)
+    export cleos=$(find ${EOSIO_ROOT} -type f -iname cleos)
+    export eosiocpp=$(find ${EOSIO_ROOT} -type f -iname eosiocpp)
+    export nodeos=$(find ${EOSIO_ROOT} -type f -iname nodeos)
 }
 
 eosiocpp()
 {
     eosiocheck || return 1
-    ${eoscpp} $@
+    ${eosiocpp} $@
 }
 
 keosd()
