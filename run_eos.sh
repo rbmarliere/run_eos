@@ -95,6 +95,7 @@ nodeos()
         --config="${EOSIO_CROOT}/config/config.ini" \
         ${GENESIS} \
         ${REPLAY} \
+        $@ \
         < /dev/null \
         2>&1 \
         > ${EOSIO_CROOT}/log/${DATE}.log \
