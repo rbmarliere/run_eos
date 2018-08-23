@@ -91,10 +91,14 @@ nodeos()
         fi
     fi
 
-    prompt_input_yN "clean" && rm -rf ${EOSIO_CROOT}/data/{block*,shared_mem,state}
-    prompt_input_yN "replay" && REPLAY=--replay || REPLAY=
+    if [ -d ${EOSIO_CROOT}/data/blocks ]; then
+        prompt_input_yN "clean blocks (removes blocks dir which holds the database)" && rm -rf ${EOSIO_CROOT}/data/blocks
+    fi
+    if [ -d ${EOSIO_CROOT}/data/state ]; then
+        prompt_input_yN "clean state (removes shared_mem and state files)" && rm -rf ${EOSIO_CROOT}/data/state
+    fi
+    prompt_input_yN "replay (only needed if it fails to start and ask for it)" && REPLAY=--replay || REPLAY=
     [ -f ${EOSIO_CROOT}/data/blocks/blocks.log ] && GENESIS= || GENESIS=--genesis-json="${EOSIO_CROOT}/config/genesis.json"
-
     DATE=$(date +'%Y_%m_%d_%H_%M_%S')
 
     nohup ${nodeos} \
