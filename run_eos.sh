@@ -38,7 +38,8 @@ eosioconf()
 
     export keosd=$(find ${EOSIO_ROOT} -type f -iname keosd)
     export cleos=$(find ${EOSIO_ROOT} -type f -iname cleos)
-    export eosiocpp=$(find ${EOSIO_ROOT} -type f -iname eosiocpp)
+    export eosiocpp=$(find ${EOSIO_ROOT} -type f -iname eosio-cpp)
+    export eosioabi=$(find ${EOSIO_ROOT} -type f -iname eosio-abigen)
     export nodeos=$(find ${EOSIO_ROOT} -type f -iname nodeos)
 }
 
@@ -48,9 +49,16 @@ eosiocpp()
     ${eosiocpp} $@
 }
 
+eosioabi()
+{
+    eosiocheck || return 1
+    ${eosioabi} $@
+}
+
 keosd()
 {
     eosiocheck || return 1
+    # check if running
     ${keosd} --http-server-address=${EOSIO_WURL} $@
 }
 
