@@ -13,7 +13,6 @@ eosiocheck()
     fi
     if [ ! -f "${keosd}" ] \
     || [ ! -f "${cleos}" ] \
-    || [ ! -f "${eosiocpp}" ] \
     || [ ! -f "${nodeos}" ]; then
         printf "error: a binary was not found in ${EOSIO_ROOT}, check your eosioconf\n"
         return 1
