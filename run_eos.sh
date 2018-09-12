@@ -102,6 +102,7 @@ nodeos()
         prompt_input_yN "hard-replay" && HREPLAY=--hard-replay || HREPLAY=
     else
         REPLAY=
+        HREPLAY=
     fi
     [ -f ${EOSIO_CROOT}/data/blocks/blocks.log ] && GENESIS= || GENESIS=--genesis-json="${EOSIO_CROOT}/config/genesis.json"
     DATE=$(date +'%Y_%m_%d_%H_%M_%S')
