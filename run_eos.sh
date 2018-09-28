@@ -94,9 +94,6 @@ nodeos()
     if [ -d ${EOSIO_CROOT}/data/blocks ]; then
         prompt_input_yN "clean blocks" && rm -rf ${EOSIO_CROOT}/data/blocks
     fi
-    if [ -d ${EOSIO_CROOT}/data/state ]; then
-        prompt_input_yN "clean state" && rm -rf ${EOSIO_CROOT}/data/state
-    fi
     if prompt_input_yN "replay"; then
         REPLAY=--replay 
         prompt_input_yN "hard-replay" && HREPLAY=--hard-replay || HREPLAY=
