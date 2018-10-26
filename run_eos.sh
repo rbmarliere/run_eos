@@ -6,13 +6,11 @@ eosiocheck()
 {
     if [ "${EOSIO_ROOT}"  = "" ] \
     || [ "${EOSIO_CROOT}" = "" ] \
-    || [ "${EOSIO_URL}"   = "" ] \
-    || [ "${EOSIO_WURL}"  = "" ]; then
+    || [ "${EOSIO_URL}"   = "" ]; then
         printf "error: an environment variable is null, check your eosioconf\n"
         return 1
     fi
-    if [ ! -f "${keosd}" ] \
-    || [ ! -f "${cleos}" ] \
+    if [ ! -f "${cleos}" ] \
     || [ ! -f "${nodeos}" ]; then
         printf "error: a binary was not found in ${EOSIO_ROOT}, check your eosioconf\n"
         return 1
@@ -21,22 +19,19 @@ eosiocheck()
 
 eosioconf()
 {
-    if [ $# -lt 4 ]; then
-        printf "usage: eosioconf eosio_root chain_root url wallet_url\n"
-        printf "e.g. eosioconf /usr/local ~/eos_localnet http://127.0.0.1:8888 http://127.0.0.1:9999\n\n"
+    if [ $# -lt 3 ]; then
+        printf "usage: eosioconf eosio_root chain_root api_url\n"
+        printf "e.g. eosioconf /usr/local ~/eos_localnet http://127.0.0.1:8888\n\n"
         printf "eosio_root: ${EOSIO_ROOT}\n"
         printf "chain_root: ${EOSIO_CROOT}\n"
-        printf "url: ${EOSIO_URL}\n"
-        printf "wallet_url: ${EOSIO_WURL}\n"
+        printf "api_url: ${EOSIO_URL}\n"
         return 1
     fi
 
     export EOSIO_ROOT=$1  ; shift
     export EOSIO_CROOT=$1 ; shift
     export EOSIO_URL=$1   ; shift
-    export EOSIO_WURL=$1  ; shift
 
-    export keosd=$(find ${EOSIO_ROOT} -type f -iname keosd)
     export cleos=$(find ${EOSIO_ROOT} -type f -iname cleos)
     export eosiocpp=$(find ${EOSIO_ROOT} -type f -iname eosio-cpp)
     export eosioabi=$(find ${EOSIO_ROOT} -type f -iname eosio-abigen)
@@ -55,19 +50,11 @@ eosioabi()
     ${eosioabi} $@
 }
 
-keosd()
-{
-    eosiocheck || return 1
-    # check if running
-    ${keosd} --http-server-address=${EOSIO_WURL} $@
-}
-
 cleos()
 {
     eosiocheck || return 1
     ${cleos} \
         --url ${EOSIO_URL} \
-        --wallet-url ${EOSIO_WURL} \
         $@
 }
 
@@ -88,6 +75,8 @@ nodeos()
                 tail -f ${EOSIO_CROOT}/log/lastlog
                 return 1
             fi
+        else
+            rm -f ${EOSIO_CROOT}/data/pid
         fi
     fi
 
@@ -95,7 +84,7 @@ nodeos()
         prompt_input_yN "clean blocks" && rm -rf ${EOSIO_CROOT}/data/blocks
     fi
     if prompt_input_yN "replay"; then
-        REPLAY=--replay 
+        REPLAY=--replay
         prompt_input_yN "hard-replay" && HREPLAY=--hard-replay || HREPLAY=
     else
         REPLAY=
@@ -119,7 +108,6 @@ nodeos()
     [ -L ${EOSIO_CROOT}/log/lastlog ] && unlink ${EOSIO_CROOT}/log/lastlog
     ln -s ${EOSIO_CROOT}/log/${DATE}.log ${EOSIO_CROOT}/log/lastlog
 
-    rm -f ${EOSIO_CROOT}/data/pid
     printf "$!" > ${EOSIO_CROOT}/data/pid
     chmod -w ${EOSIO_CROOT}/data/pid
 
@@ -131,25 +119,5 @@ nodeos_kill()
     PID=${1} ; shift
     kill -0 ${PID} && kill -2 ${PID} && rm -f ${EOSIO_CROOT}/data/pid
     wait ${PID}
-}
-
-tmux_eos()
-{
-    tmux_eos_nets=${tmux_eos_nets:-""}
-    printf "${tmux_eos_nets}\n" | tr ' ' '\n' | while read net; do
-        tmux has-session -t ${net} 2>/dev/null
-        if [ $? != 0 ]; then
-            tmux new-session -s ${net} -d
-            tmux send-keys -t ${net} "eosioconf_${net} && keosd" C-m
-            tmux split-window -h
-            tmux send-keys -t ${net} "eosioconf_${net} && nodeos" C-m
-            tmux select-pane -L
-            tmux split-window -v
-            tmux send-keys -t ${net} "eosioconf_${net}" C-m
-            tmux resize-pane -U 20
-            tmux resize-pane -R 15
-        fi
-    done
-    tmux attach
 }
 
