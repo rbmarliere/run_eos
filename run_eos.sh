@@ -103,7 +103,7 @@ nodeos()
         < /dev/null \
         2>&1 \
         > ${EOSIO_CROOT}/log/${DATE}.log \
-        & disown
+        &
 
     [ -L ${EOSIO_CROOT}/log/lastlog ] && unlink ${EOSIO_CROOT}/log/lastlog
     ln -s ${EOSIO_CROOT}/log/${DATE}.log ${EOSIO_CROOT}/log/lastlog
